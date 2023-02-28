@@ -1,5 +1,7 @@
 use std::fmt::Debug;
 
+mod b_rand;
+
 //O(n^2)
 pub fn bubble_sort<T: PartialOrd>(v: &mut [T]) {
     for p in 0..v.len() {
@@ -77,7 +79,9 @@ pub fn merge_sort<T:PartialOrd + Debug> (mut v: Vec<T>) -> Vec<T> {
 //return it;s lockation
 
 pub fn pivot<T: PartialOrd>(v: &mut [T]) -> usize {
-    let mut p = 0;
+    let mut p = b_rand::rand(v.len());
+    v.swap(p,0);
+    p = 0;
     for i in 1..v.len() {
         if v[i] < v[p] {
             //move our pivote forward 1, and put this element befor it
@@ -126,9 +130,14 @@ mod tests {
     }
 
     #[test]
-    fn testt_quick_sort(){
+    fn test_quick_sort(){
+        let  mut v = vec![4,6,1,19,8,11,13,3];
+        quick_sort(&mut v);
+        assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13]);
+
         let  mut v = vec![1, 3, 4, 6, 8, 11, 13];
         quick_sort(&mut v);
-        assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13])
+        assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13]);
+        // panic!();
     }
 }
