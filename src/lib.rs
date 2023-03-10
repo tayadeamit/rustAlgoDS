@@ -133,6 +133,19 @@ pub fn threaded_quick_sort<T: 'static + PartialOrd + Debug + Send>(v: &mut [T]) 
     }
 }
 
+pub fn quick_sort_rayon<T: Send + PartialOrd + Debug>(v:&mut [T]) {
+    if v.len() <= 1 {
+        return;
+    }
+    let p = pivot(v);
+
+    let (a,b) = v.split_at_mut(p);
+    //put f2 on queue the sttartt f1;
+    //if anotther therad is reeady it will steal f2
+    //this works recursively down the stack
+    rayon::join(||quick_sort_rayon(a),|| quick_sort_rayon(&mut b[1..]));
+}
+
 
 
 #[cfg(test)]
@@ -159,7 +172,7 @@ mod tests {
 
     #[test]
     fn test_quick_sort(){
-        let  mut v = vec![4,6,1,19,8,11,13,3];
+        let  mut v = vec![4,6,1,8,11,13,3];
         quick_sort(&mut v);
         assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13]);
 
@@ -171,9 +184,21 @@ mod tests {
 
     #[test]
     fn test_quick_sort_threaded(){
-        let  mut v = vec![4,6,1,19,8,11,13,3];
+        let  mut v = vec![4,6,1,8,11,13,3];
         threaded_quick_sort(&mut v);
         assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13]);
 
+    }
+
+    #[test]
+    fn test_quick_sort_rayon(){
+        let  mut v = vec![4,6,1,8,11,13,3];
+        quick_sort_rayon(&mut v);
+        assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13]);
+
+        let  mut v = vec![1, 3, 4, 6, 8, 11, 13];
+        quick_sort_rayon(&mut v);
+        assert_eq!(v, vec![1, 3, 4, 6, 8, 11, 13]);
+        // panic!();
     }
 }
